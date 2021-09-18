@@ -1,3 +1,5 @@
+import _root_.org.typelevel.log4cats.slf4j.Slf4jLogger
+
 //import io.circe.Decoder
 //import io.circe.Json
 //import scala.concurrent.ExecutionContext.global
@@ -39,6 +41,7 @@ val request2 = GET(
   ),
   Accept(MediaType.application.json)
 )
+implicit def unsafeLogger = Slf4jLogger.getLogger[IO]
 
 val httpClient: Client[IO] = JavaNetClientBuilder[IO].create
 
@@ -59,8 +62,8 @@ val repoIO = for {
 val contribIO = for {
   r <- repo
   resp <- r.getContributors(
-    Organisation(refineMV[NonEmpty]("http4s")),
-    Repo(refineMV[NonEmpty]("http4s")),
+    Organisation(refineMV[NonEmpty]("freeCodeCamp")),
+    Repo(refineMV[NonEmpty]("DevOps")),
     refineMV[Positive](1),
     refineMV[Positive](1)
   )
@@ -75,7 +78,9 @@ val contribIO = for {
 
 repoIO.unsafeRunSync()
 
-contribIO.unsafeRunSync()
+println("ss")
+
+contribIO.attempt.unsafeRunSync()
 
 val allContrib = for {
   repo <- LiveGitHubRepository.make[IO](httpClient)

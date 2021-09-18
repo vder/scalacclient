@@ -22,6 +22,9 @@ import org.http4s.client.Client
 import org.http4s.headers.Accept
 import org.http4s.headers.Authorization
 import eu.timepit.refined.types.numeric
+import org.http4s.Response
+import org.http4s.Status
+import org.http4s.InvalidResponseException
 
 private[github] trait GitHubRepository[F[_]] {
   def getRepositories(
@@ -83,7 +86,14 @@ private[github] final class LiveGitHubRepository[
           Accept(MediaType.application.json)
         )
       )
-      resp <- client.expect[List[Repo]](request)
+      resp <- client.run(request).use {
+        case r @ Response(Status(200), _, _, _, _) => r.as[List[Repo]]
+        case Response(Status(204), _, _, _, _) =>
+          List[Repo]().pure[F]
+        case _ =>
+          Concurrent[F]
+            .raiseError[List[Repo]](new InvalidResponseException("wrong"))
+      }
     } yield (resp)
 
   override def getContributors(
@@ -107,8 +117,15 @@ private[github] final class LiveGitHubRepository[
         Accept(MediaType.application.json)
       )
     )
-    resp <- client.expect[List[User]](request)
+    resp <- client.run(request).use {
+      case r @ Response(Status(200), _, _, _, _) => r.as[List[User]]
+      case Response(Status(204), _, _, _, _)     => List[User]().pure[F]
+      case _ =>
+        Concurrent[F]
+          .raiseError[List[User]](new InvalidResponseException("wrong"))
+    }
   } yield (resp)
+
 }
 
 object LiveGitHubRepository {

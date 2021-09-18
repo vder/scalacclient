@@ -10,7 +10,7 @@ import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.refineMV
 import eu.timepit.refined.types.numeric
 
-final class GitHubProgram[F[_]: Parallel: Sync](
+final case class GitHubProgram[F[_]: Parallel: Sync](
     val gitHubRepo: GitHubRepository[F],
     pageSize: numeric.PosInt = refineMV[Positive](100)
 ) {
