@@ -25,6 +25,7 @@ import eu.timepit.refined.types.numeric
 import org.http4s.Response
 import org.http4s.Status
 import org.http4s.InvalidResponseException
+import com.pfl.scalacclient.config.ServiceConfig
 
 private[github] trait GitHubRepository[F[_]] {
   def getRepositories(
@@ -43,8 +44,12 @@ private[github] trait GitHubRepository[F[_]] {
 private[github] final class LiveGitHubRepository[
     F[_]: Concurrent
 ] private (
-    val client: Client[F]
+    val client: Client[F],
+    serviceConfig: ServiceConfig
 ) extends GitHubRepository[F] {
+
+  val credentials =
+    BasicCredentials(serviceConfig.user.value, serviceConfig.token.value)
 
   private val GITHUB_URL: String = "https://api.github.com"
 
@@ -81,7 +86,7 @@ private[github] final class LiveGitHubRepository[
         url,
         headers = Headers(
           Authorization(
-            BasicCredentials("vder", "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")
+            credentials
           ),
           Accept(MediaType.application.json)
         )
@@ -112,7 +117,7 @@ private[github] final class LiveGitHubRepository[
       url,
       headers = Headers(
         Authorization(
-          BasicCredentials("vder", "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")
+          credentials
         ),
         Accept(MediaType.application.json)
       )
@@ -131,7 +136,8 @@ private[github] final class LiveGitHubRepository[
 object LiveGitHubRepository {
 
   def make[F[_]: Sync: Concurrent](
-      client: Client[F]
+      client: Client[F],
+      serviceConfig: ServiceConfig
   ) =
-    Sync[F].delay { new LiveGitHubRepository[F](client) }
+    Sync[F].delay { new LiveGitHubRepository[F](client, serviceConfig) }
 }
