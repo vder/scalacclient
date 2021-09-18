@@ -1,4 +1,4 @@
-package com.example.scalacclient
+package com.pfl.scalacclient
 
 import cats.effect.Sync
 import cats.implicits._

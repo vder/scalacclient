@@ -1,27 +1,26 @@
-package com.example.scalacclient
+package com.pfl.scalacclient.github
 
-import org.http4s.client.Client
+import cats.effect.Concurrent
 import cats.effect.kernel.Sync
+import cats.implicits._
+import com.pfl.scalacclient.model._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
+import eu.timepit.refined.types.string
+import io.circe.Decoder
+import io.circe.generic.semiauto._
+import io.circe.refined._
+import org.http4s.BasicCredentials
+import org.http4s.EntityDecoder
+import org.http4s.Headers
+import org.http4s.MediaType
+import org.http4s.Method._
 import org.http4s.Request
 import org.http4s.Uri
-import cats.implicits._
-import org.http4s.Method._
-import org.http4s.Headers
-import org.http4s.headers.Authorization
-import org.http4s.BasicCredentials
-import org.http4s.headers.Accept
-import org.http4s.MediaType
 import org.http4s.circe._
-import org.http4s.EntityDecoder
-import io.circe.Decoder
-import _root_.io.circe.generic.semiauto._
-import eu.timepit.refined.types.string
-import cats.effect.Concurrent
-// import eu.timepit.refined.collection.NonEmpty
-// import eu.timepit.refined._
-import io.circe.refined._
+import org.http4s.client.Client
+import org.http4s.headers.Accept
+import org.http4s.headers.Authorization
 
 trait GitHubRepository[F[_]] {
   def getRepositories(

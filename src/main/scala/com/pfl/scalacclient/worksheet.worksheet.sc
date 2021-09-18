@@ -16,7 +16,9 @@ import cats.effect._
 import cats.effect.unsafe.IORuntime
 import cats.effect.unsafe.implicits.global
 //import _root_.io.circe.refined._
-import com.example.scalacclient._
+import com.pfl.scalacclient._
+import com.pfl.scalacclient.github._
+import com.pfl.scalacclient.model._
 import eu.timepit.refined._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.collection.NonEmpty

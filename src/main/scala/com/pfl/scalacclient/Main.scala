@@ -1,10 +1,10 @@
-package com.example.scalacclient
+package com.pfl.scalacclient
 
 import cats.effect.{IO, IOApp}
+import org.http4s.blaze.client.BlazeClientBuilder
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits._
 import scala.concurrent.ExecutionContext.global
-import org.http4s.blaze.client.BlazeClientBuilder
 object Main extends IOApp.Simple {
 
   override def run =

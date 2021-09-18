@@ -1,12 +1,13 @@
-package com.example.scalacclient
+package com.pfl.scalacclient.github
 
-import eu.timepit.refined.refineMV
-import eu.timepit.refined.numeric.Positive
-import cats.implicits._
-import eu.timepit.refined.api.Refined
 import cats.Parallel
-import cats.kernel.Monoid
 import cats.effect.kernel.Sync
+import cats.implicits._
+import cats.kernel.Monoid
+import com.pfl.scalacclient.model._
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.numeric.Positive
+import eu.timepit.refined.refineMV
 
 final class GitHubProgram[F[_]: Parallel: Sync](
     val gitHubRepo: GitHubRepository[F]
