@@ -8,19 +8,22 @@ import com.pfl.scalacclient.model._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.refineMV
+import eu.timepit.refined.types.numeric
 
 final class GitHubProgram[F[_]: Parallel: Sync](
-    val gitHubRepo: GitHubRepository[F]
+    val gitHubRepo: GitHubRepository[F],
+    pageSize: numeric.PosInt = refineMV[Positive](100)
 ) {
+
   def listRepos(organisation: Organisation): F[List[Repo]] = {
     def repoAux(
         organisation: Organisation,
         pageNo: Int Refined Positive = refineMV(1)
     ): F[List[Repo]] =
       for {
-        resultPage <- gitHubRepo.getRepositories(organisation, pageNo)
+        resultPage <- gitHubRepo.getRepositories(organisation, pageSize, pageNo)
         nextPage <-
-          if (resultPage.size < 100) List().pure[F]
+          if (resultPage.size < pageSize.value) List().pure[F]
           else
             Sync[F].defer(
               repoAux(
@@ -43,9 +46,14 @@ final class GitHubProgram[F[_]: Parallel: Sync](
         pageNo: Int Refined Positive = refineMV(1)
     ): F[List[User]] =
       for {
-        resultPage <- gitHubRepo.getContributors(organisation, repo, pageNo)
+        resultPage <- gitHubRepo.getContributors(
+          organisation,
+          repo,
+          pageSize,
+          pageNo
+        )
         nextPage <-
-          if (resultPage.size < 100) List().pure[F]
+          if (resultPage.size < pageSize.value) List().pure[F]
           else
             Sync[F].defer(
               contributorsAux(

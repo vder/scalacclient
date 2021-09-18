@@ -23,19 +23,21 @@ import org.http4s.headers.Accept
 import org.http4s.headers.Authorization
 import eu.timepit.refined.types.numeric
 
-trait GitHubRepository[F[_]] {
+private[github] trait GitHubRepository[F[_]] {
   def getRepositories(
       organisation: Organisation,
+      pageSize: Refined[Int, Positive],
       pageNo: Int Refined Positive
   ): F[List[Repo]]
   def getContributors(
       organisation: Organisation,
       repo: Repo,
+      pageSize: Refined[Int, Positive],
       pageNo: Int Refined Positive
   ): F[List[User]]
 }
 
-final class LiveGitHubRepository[
+private[github] final class LiveGitHubRepository[
     F[_]: Concurrent
 ] private (
     val client: Client[F]
@@ -62,12 +64,13 @@ final class LiveGitHubRepository[
 
   override def getRepositories(
       organisation: Organisation,
+      pageSize: Refined[Int, Positive],
       pageNo: Refined[Int, Positive]
   ): F[List[Repo]] =
     for {
       url <- Uri
         .fromString(
-          s"""${GITHUB_URL}/orgs/${organisation.value.value}/repos?per_page=100&page=${pageNo.value}"""
+          s"""${GITHUB_URL}/orgs/${organisation.value.value}/repos?per_page=${pageSize.value}&page=${pageNo.value}"""
         )
         .liftTo[F]
       request = Request[F](
@@ -86,11 +89,12 @@ final class LiveGitHubRepository[
   override def getContributors(
       organisation: Organisation,
       repo: Repo,
+      pageSize: Refined[Int, Positive],
       pageNo: Refined[Int, Positive]
   ): F[List[User]] = for {
     url <- Uri
       .fromString(
-        s"""${GITHUB_URL}/repos/${organisation.value.value}/${repo.value.value}/contributors?per_page=100&page=${pageNo.value}"""
+        s"""${GITHUB_URL}/repos/${organisation.value.value}/${repo.value.value}/contributors?per_page=${pageSize.value}&page=${pageNo.value}"""
       )
       .liftTo[F]
     request = Request[F](

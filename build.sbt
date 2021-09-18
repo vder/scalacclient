@@ -5,7 +5,7 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.pfl"
 ThisBuild / organizationName := "pfl"
 
-Test / parallelExecution := false
+//Test / parallelExecution := false
 
 lazy val root = (project in file("."))
   .settings(

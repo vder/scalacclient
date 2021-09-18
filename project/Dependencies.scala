@@ -12,7 +12,7 @@ object Dependencies {
     val circeDerivation = "0.13.0-M4"
     val betterMonadicFor = "0.3.1"
     val kindProjector = "0.13.0"
-    val munit = "0.7.26"
+    val munit = "0.7.29"
     val scalacheckEffect = "1.0.2"
   }
   object Libraries {
@@ -45,7 +45,7 @@ object Dependencies {
     val pureConfigRefined = refinedLib("refined-pureconfig")
     val refined = refinedLib("refined")
     val slf4j = "org.typelevel" %% "log4cats-slf4j" % "2.1.1"
-    val mUnitCE = typeLevelLibTest("munit-cats-effect-2", "1.0.0")
+    val mUnitCE = typeLevelLibTest("munit-cats-effect-3", "1.0.0")
     val scalaCheckEffect =
       typeLevelLibTest("scalacheck-effect", V.scalacheckEffect)
     val scalaCheckEffectMunit =

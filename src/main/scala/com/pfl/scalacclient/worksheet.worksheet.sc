@@ -51,6 +51,7 @@ val repoIO = for {
   r <- repo
   resp <- r.getRepositories(
     Organisation(refineMV[NonEmpty]("http4s")),
+    refineMV[Positive](1),
     refineMV[Positive](1)
   )
 } yield resp
@@ -60,6 +61,7 @@ val contribIO = for {
   resp <- r.getContributors(
     Organisation(refineMV[NonEmpty]("http4s")),
     Repo(refineMV[NonEmpty]("http4s")),
+    refineMV[Positive](1),
     refineMV[Positive](1)
   )
 } yield resp
@@ -85,7 +87,18 @@ val allContrib = for {
   )
 } yield (
   allContributors,
-  allRepos.size
+  allRepos
 )
 
 val c = allContrib.map(_._1).unsafeRunSync()
+
+val repos = allContrib.map(_._2).unsafeRunSync()
+
+val user = User(Login(refineMV("o1")), Contributions(refineMV(10)))
+
+val data = Map(
+  Organisation(refineMV("o1")) -> Map(
+    Repo(refineMV("r1")) -> List(user),
+    Repo(refineMV("r2")) -> List(user)
+  )
+)
