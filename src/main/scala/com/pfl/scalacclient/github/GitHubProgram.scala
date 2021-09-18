@@ -73,12 +73,12 @@ final class GitHubProgram[F[_]: Parallel: Sync](
         .parTraverse(repo => listContributors(organisation, repo))
       allContrib = results
         .reduce(_ ::: _)
-        .groupMapReduce(_.login)(_.contributions.value)(_ + _)
+        .groupMapReduce(_.login)(_.contributions.value.value)(_ + _)
         .map { case (login, sum) =>
-          User(login, Refined.unsafeApply[Int, Positive](sum))
+          User(login, Contributions(Refined.unsafeApply[Int, Positive](sum)))
         }
         .toList
-        .sortWith(_.contributions.value > _.contributions.value)
+        .sortWith(_.contributions.value.value > _.contributions.value.value)
     } yield (allContrib)
   }
 

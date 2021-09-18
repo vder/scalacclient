@@ -21,6 +21,7 @@ import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.headers.Accept
 import org.http4s.headers.Authorization
+import eu.timepit.refined.types.numeric
 
 trait GitHubRepository[F[_]] {
   def getRepositories(
@@ -44,6 +45,9 @@ final class LiveGitHubRepository[
 
   implicit val LoginDecoder: Decoder[Login] =
     Decoder[string.NonEmptyString].map(Login.apply)
+
+  implicit val ContributionsDecoder: Decoder[Contributions] =
+    Decoder[numeric.PosInt].map(Contributions.apply)
 
   implicit val RepoDecoder: Decoder[Repo] =
     Decoder

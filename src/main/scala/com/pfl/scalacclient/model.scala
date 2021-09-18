@@ -8,5 +8,6 @@ object model {
   final case class Organisation(value: string.NonEmptyString)
   final case class Repo(value: string.NonEmptyString)
   final case class Login(value: string.NonEmptyString)
-  final case class User(login: Login, contributions: Int Refined Positive)
+  final case class Contributions(value: Int Refined Positive)
+  final case class User(login: Login, contributions: Contributions)
 }
