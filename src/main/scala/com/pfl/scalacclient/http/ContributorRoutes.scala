@@ -14,6 +14,8 @@ import com.pfl.scalacclient.model._
 import io.circe.generic.semiauto._
 import io.circe.Encoder
 import org.typelevel.log4cats.Logger
+import com.pfl.scalacclient.error.ErrorHandler
+import com.pfl.scalacclient.error.instances._
 
 final class ContributorRoutes[F[_]: MonadError[*[_], Throwable]: Logger](
     contributorService: ContributorService[F]
@@ -39,9 +41,7 @@ final class ContributorRoutes[F[_]: MonadError[*[_], Throwable]: Logger](
     HttpRoutes.of { case GET -> Root / organisation / "contributors" =>
       for {
         organisationName <- refineV[NonEmpty](organisation)
-          .leftMap(
-            new RuntimeException(_)
-          )
+          .leftMap(_ => BadRequestErr)
           .liftTo[F]
         _ <- Logger[F].info(organisationName.toString())
         results <- contributorService.listContributors(organisationName)
@@ -50,7 +50,10 @@ final class ContributorRoutes[F[_]: MonadError[*[_], Throwable]: Logger](
 
     }
 
-  def routes = Router(prefixPath -> httpRoutes)
+  def routes(handler: ErrorHandler[F, Throwable]) =
+    Router(
+      prefixPath -> handler.basicHandle(httpRoutes)
+    )
 }
 
 object ContributorRoutes {

@@ -19,6 +19,7 @@ import _root_.pureconfig.ConfigSource
 import cats.effect.kernel.Resource
 import org.http4s.client.Client
 import com.pfl.scalacclient.config.ServiceConfig
+import com.pfl.scalacclient.error.LiveHttpErrorHandler
 object Main extends IOApp.Simple {
 
   val pageSize = refineMV[Positive](100)
@@ -41,7 +42,10 @@ object Main extends IOApp.Simple {
         githubApi = GitHubProgram(githubRepo, pageSize)
         service <- ContributorService.make(githubApi)
         contributorRoutes <- ContributorRoutes.make(service)
-        httpApp = (routes.routes <+> contributorRoutes.routes).orNotFound
+        errHandler = LiveHttpErrorHandler[IO]
+        httpApp = (routes.routes <+> contributorRoutes.routes(
+          errHandler
+        )).orNotFound
         _ <- BlazeServerBuilder[IO](global)
           .bindHttp(
             config.port.value,
