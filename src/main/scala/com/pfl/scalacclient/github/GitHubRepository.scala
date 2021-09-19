@@ -23,7 +23,7 @@ import org.http4s.headers.Accept
 import org.http4s.headers.Authorization
 import org.typelevel.log4cats.Logger
 
-private[github] trait GitHubRepository[F[_]] {
+trait GitHubRepository[F[_]] {
   def getRepositories(
       organisation: Organisation,
       pageSize: Refined[Int, Positive],
@@ -37,7 +37,7 @@ private[github] trait GitHubRepository[F[_]] {
   ): F[List[User]]
 }
 
-private[github] final class LiveGitHubRepository[
+final class LiveGitHubRepository[
     F[_]: Concurrent: Logger
 ] private (
     val client: Client[F],
