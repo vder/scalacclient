@@ -11,7 +11,6 @@ import eu.timepit.refined.numeric._
 import org.http4s.BasicCredentials
 import org.http4s.EntityDecoder
 import org.http4s.Headers
-import org.http4s.MediaType
 import org.http4s.Method._
 import org.http4s.Request
 import org.http4s.Response
@@ -19,7 +18,6 @@ import org.http4s.Status
 import org.http4s.Uri
 import org.http4s.circe._
 import org.http4s.client.Client
-import org.http4s.headers.Accept
 import org.http4s.headers.Authorization
 import org.typelevel.log4cats.Logger
 
@@ -48,8 +46,9 @@ final class LiveGitHubRepository[
   val reqHeaders = Headers(
     Authorization(
       BasicCredentials(serviceConfig.user.value, serviceConfig.token.value)
-    ),
-    Accept(MediaType.application.json)
+    )
+  ) ++ Headers(
+    ("Accept", "application/vnd.github.v3+json")
   )
 
   private val GITHUB_URL: String = "https://api.github.com"

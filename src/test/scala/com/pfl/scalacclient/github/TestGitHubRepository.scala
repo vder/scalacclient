@@ -29,7 +29,7 @@ final case class TestGitHubRepository(
   ): IO[List[User]] = IO {
     data
       .getOrElse(repo, List())
-      .sortWith(_.contributions.value.value > _.contributions.value.value)
+      .sorted
       .drop(pageSize.value * (pageNo.value - 1))
       .take(pageSize.value)
 

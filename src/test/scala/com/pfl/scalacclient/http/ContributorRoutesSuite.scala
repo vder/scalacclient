@@ -155,7 +155,7 @@ class ContributorRoutesSuite
         ).pure[IO].flatMap { req =>
           assertHttp(routes, req)(
             Status.Ok,
-            contributors.sortBy(_.contributions.value.value).reverse
+            contributors.sorted
           )
         }
     }

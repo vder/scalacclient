@@ -85,7 +85,7 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
           User(login, Contributions(Refined.unsafeApply[Int, Positive](sum)))
         }
         .toList
-        .sortWith(_.contributions.value.value > _.contributions.value.value)
+        .sorted
     } yield (allContrib)
 
 }

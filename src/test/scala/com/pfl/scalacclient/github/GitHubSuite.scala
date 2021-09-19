@@ -7,9 +7,7 @@ import munit.ScalaCheckEffectSuite
 import org.scalacheck.effect.PropF
 import scala.util.Random
 import com.pfl.scalacclient.generators._
-//import com.pfl.scalacclient.arbitraries._
 import munit.CatsEffectSuite
-//import org.scalacheck.Prop
 import eu.timepit.refined.collection.NonEmpty
 import cats.effect.IO
 import eu.timepit.refined.api.Refined
@@ -71,7 +69,7 @@ class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
         .map { case (login, contribInt) =>
           User(login, Contributions(Refined.unsafeApply(contribInt)))
         }
-        .sortWith(_.contributions.value.value > _.contributions.value.value)
+        .sorted
 
       val organisation = Organisation(refineMV[NonEmpty]("a"))
       program.listContributors(organisation).map { result =>
