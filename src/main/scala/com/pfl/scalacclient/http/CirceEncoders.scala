@@ -5,11 +5,11 @@ import io.circe.Encoder
 import io.circe.generic.semiauto._
 
 trait CirceEncoders {
-  implicit val UserDecoder: Encoder[User] =
+  implicit val userEncoder: Encoder[User] =
     deriveEncoder[User]
-  implicit val loginDecoder: Encoder[Login] =
+  implicit val loginEncoder: Encoder[Login] =
     Encoder[String].contramap(_.value.value)
 
-  implicit val contribDecoder: Encoder[Contributions] =
+  implicit val contribEncoder: Encoder[Contributions] =
     Encoder[Int].contramap(_.value.value)
 }

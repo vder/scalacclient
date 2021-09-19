@@ -1,23 +1,23 @@
 package com.pfl.scalacclient
 
-import cats.effect.{IO, IOApp}
-import org.http4s.blaze.client.BlazeClientBuilder
-import org.http4s.blaze.server.BlazeServerBuilder
-import cats.implicits._
-import org.http4s.implicits._
-import pureconfig.module.catseffect.syntax._
-import scala.concurrent.ExecutionContext.global
-import com.pfl.scalacclient.github.LiveGitHubRepository
-import com.pfl.scalacclient.github.GitHubProgram
-import com.pfl.scalacclient.http.ContributorRoutes
-import com.pfl.scalacclient.http.ContributorService
-import cats.effect.kernel.Sync
-import org.typelevel.log4cats.slf4j.Slf4jLogger
-import _root_.pureconfig.ConfigSource
 import cats.effect.kernel.Resource
-import org.http4s.client.Client
+import cats.effect.kernel.Sync
+import cats.effect.{IO, IOApp}
+import cats.implicits._
 import com.pfl.scalacclient.config.ServiceConfig
 import com.pfl.scalacclient.error.LiveHttpErrorHandler
+import com.pfl.scalacclient.github.GitHubProgram
+import com.pfl.scalacclient.github.LiveGitHubRepository
+import com.pfl.scalacclient.http.ContributorRoutes
+import com.pfl.scalacclient.http.ContributorService
+import org.http4s.blaze.client.BlazeClientBuilder
+import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.client.Client
+import org.http4s.implicits._
+import org.typelevel.log4cats.slf4j.Slf4jLogger
+import pureconfig.ConfigSource
+import pureconfig.module.catseffect.syntax._
+import scala.concurrent.ExecutionContext.global
 object Main extends IOApp.Simple {
 
   implicit def unsafeLogger[F[_]: Sync] = Slf4jLogger.getLogger[F]

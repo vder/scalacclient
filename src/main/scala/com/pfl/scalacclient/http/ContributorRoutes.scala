@@ -33,7 +33,7 @@ final class ContributorRoutes[F[_]: MonadError[*[_], Throwable]: Logger](
         organisationName <- refineV[NonEmpty](organisation)
           .leftMap(_ => BadRequestErr)
           .liftTo[F]
-        _ <- Logger[F].info(organisationName.toString())
+        _ <- Logger[F].debug(organisationName.toString())
         results <- contributorService.listContributors(organisationName)
         response <- Ok(results)
       } yield response
