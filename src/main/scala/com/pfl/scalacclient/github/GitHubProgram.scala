@@ -73,8 +73,7 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
     def empty: List[User] = List()
   }
 
-  def listContributors(organisation: Organisation): F[List[User]] = {
-
+  def listContributors(organisation: Organisation): F[List[User]] =
     for {
       allRepos <- listRepos(organisation)
       results <- allRepos
@@ -88,6 +87,5 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
         .toList
         .sortWith(_.contributions.value.value > _.contributions.value.value)
     } yield (allContrib)
-  }
 
 }

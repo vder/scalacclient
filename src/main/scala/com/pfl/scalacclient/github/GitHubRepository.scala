@@ -8,11 +8,6 @@ import com.pfl.scalacclient.error.instances._
 import com.pfl.scalacclient.model._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
-import eu.timepit.refined.types.numeric
-import eu.timepit.refined.types.string
-import io.circe.Decoder
-import io.circe.generic.semiauto._
-import io.circe.refined._
 import org.http4s.BasicCredentials
 import org.http4s.EntityDecoder
 import org.http4s.Headers
@@ -32,13 +27,13 @@ private[github] trait GitHubRepository[F[_]] {
   def getRepositories(
       organisation: Organisation,
       pageSize: Refined[Int, Positive],
-      pageNo: Int Refined Positive
+      pageNo: Refined[Int, Positive]
   ): F[List[Repo]]
   def getContributors(
       organisation: Organisation,
       repo: Repo,
       pageSize: Refined[Int, Positive],
-      pageNo: Int Refined Positive
+      pageNo: Refined[Int, Positive]
   ): F[List[User]]
 }
 
@@ -47,7 +42,8 @@ private[github] final class LiveGitHubRepository[
 ] private (
     val client: Client[F],
     serviceConfig: ServiceConfig
-) extends GitHubRepository[F] {
+) extends GitHubRepository[F]
+    with CirceDecoders {
 
   val reqHeaders = Headers(
     Authorization(
@@ -57,18 +53,6 @@ private[github] final class LiveGitHubRepository[
   )
 
   private val GITHUB_URL: String = "https://api.github.com"
-
-  implicit val LoginDecoder: Decoder[Login] =
-    Decoder[string.NonEmptyString].map(Login.apply)
-
-  implicit val ContributionsDecoder: Decoder[Contributions] =
-    Decoder[numeric.PosInt].map(Contributions.apply)
-
-  implicit val RepoDecoder: Decoder[Repo] =
-    Decoder
-      .forProduct1("name")(Repo.apply)
-
-  implicit val UserDecoder: Decoder[User] = deriveDecoder[User]
 
   implicit def RepoEntityDecoder: EntityDecoder[F, Repo] = jsonOf
   implicit def RepoListEntityDecoder: EntityDecoder[F, List[Repo]] = jsonOf

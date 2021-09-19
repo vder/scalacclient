@@ -9,8 +9,6 @@ import pureconfig.module.catseffect.syntax._
 import scala.concurrent.ExecutionContext.global
 import com.pfl.scalacclient.github.LiveGitHubRepository
 import com.pfl.scalacclient.github.GitHubProgram
-import _root_.eu.timepit.refined.numeric.Positive
-import eu.timepit.refined._
 import com.pfl.scalacclient.http.ContributorRoutes
 import com.pfl.scalacclient.http.ContributorService
 import cats.effect.kernel.Sync
@@ -21,8 +19,6 @@ import org.http4s.client.Client
 import com.pfl.scalacclient.config.ServiceConfig
 import com.pfl.scalacclient.error.LiveHttpErrorHandler
 object Main extends IOApp.Simple {
-
-  val pageSize = refineMV[Positive](100)
 
   implicit def unsafeLogger[F[_]: Sync] = Slf4jLogger.getLogger[F]
 
@@ -39,7 +35,7 @@ object Main extends IOApp.Simple {
       for {
         routes <- BasicRoutes.make[IO]
         githubRepo <- LiveGitHubRepository.make(client, config)
-        githubApi = GitHubProgram(githubRepo, pageSize)
+        githubApi = GitHubProgram(githubRepo)
         service <- ContributorService.make(githubApi)
         contributorRoutes <- ContributorRoutes.make(service)
         errHandler = LiveHttpErrorHandler[IO]
