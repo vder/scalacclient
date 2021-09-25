@@ -10,7 +10,7 @@ import com.pfl.scalacclient.generators._
 import munit.CatsEffectSuite
 import eu.timepit.refined.collection.NonEmpty
 import cats.effect.IO
-import eu.timepit.refined.api.Refined
+import model._
 
 class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
 
@@ -25,23 +25,23 @@ class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
             override def getContributors(
                 organisation: Organisation,
                 repo: Repo,
-                pageSize: Refined[Int, Positive],
-                pageNo: Refined[Int, Positive]
+                pageSize: PageSize,
+                pageNo: PageNo
             ): IO[List[User]] = ???
 
             override def getRepositories(
                 organisation: Organisation,
-                pageSize: Refined[Int, Positive],
-                pageNo: Int Refined Positive
+                pageSize: PageSize,
+                pageNo: PageNo
             ): IO[List[Repo]] = IO {
               repos
                 .sortBy(_.value.value)
-                .drop(pageSize.value * (pageNo.value - 1))
-                .take(pageSize.value)
+                .drop(pageSize.value.value * (pageNo.value.value - 1))
+                .take(pageSize.value.value)
             }
 
           },
-          refineMV[Positive](1)
+          PageSize(refineMV[Positive](1))
         )
       val organisation = Organisation(refineMV[NonEmpty]("a"))
       program.listRepos(organisation).map { result =>
@@ -59,7 +59,7 @@ class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
       val program =
         new GitHubProgram(
           testRepository,
-          refineMV[Positive](1)
+          PageSize(refineMV[Positive](1))
         )
 
       val expectedResults: List[User] = data.toList
@@ -67,7 +67,7 @@ class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
         .groupMapReduce(_.login)(_.contributions.value.value)(_ + _)
         .toList
         .map { case (login, contribInt) =>
-          User(login, Contributions(Refined.unsafeApply(contribInt)))
+          User(login, Contributions.unsafeApply(contribInt))
         }
         .sorted
 

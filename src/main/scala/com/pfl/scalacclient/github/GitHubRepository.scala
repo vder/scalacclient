@@ -6,8 +6,6 @@ import cats.implicits._
 import com.pfl.scalacclient.config.ServiceConfig
 import com.pfl.scalacclient.error.instances._
 import com.pfl.scalacclient.model._
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.numeric._
 import org.http4s.BasicCredentials
 import org.http4s.EntityDecoder
 import org.http4s.Headers
@@ -20,18 +18,19 @@ import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.headers.Authorization
 import org.typelevel.log4cats.Logger
+import model._
 
 trait GitHubRepository[F[_]] {
   def getRepositories(
       organisation: Organisation,
-      pageSize: Refined[Int, Positive],
-      pageNo: Refined[Int, Positive]
+      pageSize: PageSize,
+      pageNo: PageNo
   ): F[List[Repo]]
   def getContributors(
       organisation: Organisation,
       repo: Repo,
-      pageSize: Refined[Int, Positive],
-      pageNo: Refined[Int, Positive]
+      pageSize: PageSize,
+      pageNo: PageNo
   ): F[List[User]]
 }
 
@@ -78,13 +77,13 @@ final class LiveGitHubRepository[
 
   override def getRepositories(
       organisation: Organisation,
-      pageSize: Refined[Int, Positive],
-      pageNo: Refined[Int, Positive]
+      pageSize: PageSize,
+      pageNo: PageNo
   ): F[List[Repo]] =
     for {
       url <- Uri
         .fromString(
-          s"""${GITHUB_URL}/orgs/${organisation.value.value}/repos?per_page=${pageSize.value}&page=${pageNo.value}"""
+          s"""${GITHUB_URL}/orgs/${organisation.value.value}/repos?per_page=${pageSize.value.value}&page=${pageNo.value.value}"""
         )
         .liftTo[F]
       request = Request[F](
@@ -92,18 +91,24 @@ final class LiveGitHubRepository[
         url,
         headers = reqHeaders
       )
-      resp <- client.run(request).use(responseHandler[Repo](organisation)(_))
+      resp <- client
+        .run(request)
+        .use { r =>
+          responseHandler[Repo](organisation)(r).recoverWith { e =>
+            Logger[F].warn(r.toString()) >> Concurrent[F].raiseError(e)
+          }
+        }
     } yield (resp)
 
   override def getContributors(
       organisation: Organisation,
       repo: Repo,
-      pageSize: Refined[Int, Positive],
-      pageNo: Refined[Int, Positive]
+      pageSize: PageSize,
+      pageNo: PageNo
   ): F[List[User]] = for {
     url <- Uri
       .fromString(
-        s"""${GITHUB_URL}/repos/${organisation.value.value}/${repo.value.value}/contributors?per_page=${pageSize.value}&page=${pageNo.value}"""
+        s"""${GITHUB_URL}/repos/${organisation.value.value}/${repo.value.value}/contributors?per_page=${pageSize.value.value}&page=${pageNo.value.value}"""
       )
       .liftTo[F]
     request = Request[F](
@@ -111,7 +116,11 @@ final class LiveGitHubRepository[
       url,
       headers = reqHeaders
     )
-    resp <- client.run(request).use { responseHandler[User](organisation)(_) }
+    resp <- client.run(request).use { r =>
+      responseHandler[User](organisation)(r).recoverWith { e =>
+        Logger[F].warn(r.toString()) >> Concurrent[F].raiseError(e)
+      }
+    }
   } yield (resp)
 
 }

@@ -1,9 +1,8 @@
 package com.pfl.scalacclient.github
 
 import com.pfl.scalacclient.model._
-import eu.timepit.refined.numeric
-import eu.timepit.refined.api.Refined
 import cats.effect.IO
+import model._
 
 final case class TestGitHubRepository(
     data: Map[Repo, List[User]]
@@ -11,27 +10,27 @@ final case class TestGitHubRepository(
 
   override def getRepositories(
       organisation: Organisation,
-      pageSize: Refined[Int, numeric.Positive],
-      pageNo: Refined[Int, numeric.Positive]
+      pageSize: PageSize,
+      pageNo: PageNo
   ): IO[List[Repo]] = IO.pure {
     data.keySet.toList
       .sortBy(_.value.value)
-      .drop(pageSize.value * (pageNo.value - 1))
-      .take(pageSize.value)
+      .drop(pageSize.value.value * (pageNo.value.value - 1))
+      .take(pageSize.value.value)
 
   }
 
   override def getContributors(
       organisation: Organisation,
       repo: Repo,
-      pageSize: Refined[Int, numeric.Positive],
-      pageNo: Refined[Int, numeric.Positive]
+      pageSize: PageSize,
+      pageNo: PageNo
   ): IO[List[User]] = IO {
     data
       .getOrElse(repo, List())
       .sorted
-      .drop(pageSize.value * (pageNo.value - 1))
-      .take(pageSize.value)
+      .drop(pageSize.value.value * (pageNo.value.value - 1))
+      .take(pageSize.value.value)
 
   }
 }

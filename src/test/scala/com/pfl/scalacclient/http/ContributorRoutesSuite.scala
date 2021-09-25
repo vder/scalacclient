@@ -15,8 +15,6 @@ import com.pfl.scalacclient.model.User
 import com.pfl.scalacclient.http.CirceEncoders
 import com.pfl.scalacclient.model._
 import com.pfl.scalacclient.github.GitHubRepository
-import eu.timepit.refined.numeric
-import eu.timepit.refined.api.Refined
 import com.pfl.scalacclient.error.instances
 import com.pfl.scalacclient.github.GitHubProgram
 import cats.effect.kernel.Sync
@@ -25,6 +23,7 @@ import com.pfl.scalacclient.error.ErrorMessage
 import com.pfl.scalacclient.arbitraries._
 import com.pfl.scalacclient.generators._
 import com.pfl.scalacclient.github.TestGitHubRepository
+import com.pfl.scalacclient.github.model._
 
 class ContributorRoutesSuite
     extends HttpTestSuite
@@ -41,16 +40,16 @@ class ContributorRoutesSuite
   val notFoundGitRepo = new GitHubRepository[IO] {
     override def getRepositories(
         organisation: Organisation,
-        pageSize: Refined[Int, numeric.Positive],
-        pageNo: Refined[Int, numeric.Positive]
+        pageSize: PageSize,
+        pageNo: PageNo
     ): IO[List[Repo]] =
       IO.raiseError(instances.NotFoundErr(organisation.value.value))
 
     override def getContributors(
         organisation: Organisation,
         repo: Repo,
-        pageSize: Refined[Int, numeric.Positive],
-        pageNo: Refined[Int, numeric.Positive]
+        pageSize: PageSize,
+        pageNo: PageNo
     ): IO[List[User]] = ???
 
   }
@@ -58,16 +57,16 @@ class ContributorRoutesSuite
   val gitErrorRepo = new GitHubRepository[IO] {
     override def getRepositories(
         organisation: Organisation,
-        pageSize: Refined[Int, numeric.Positive],
-        pageNo: Refined[Int, numeric.Positive]
+        pageSize: PageSize,
+        pageNo: PageNo
     ): IO[List[Repo]] =
       IO.raiseError(instances.GitHubErr(gitErrMessage))
 
     override def getContributors(
         organisation: Organisation,
         repo: Repo,
-        pageSize: Refined[Int, numeric.Positive],
-        pageNo: Refined[Int, numeric.Positive]
+        pageSize: PageSize,
+        pageNo: PageNo
     ): IO[List[User]] = ???
 
   }

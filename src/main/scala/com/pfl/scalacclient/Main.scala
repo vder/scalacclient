@@ -18,13 +18,18 @@ import org.typelevel.log4cats.slf4j.Slf4jLogger
 import pureconfig.ConfigSource
 import pureconfig.module.catseffect.syntax._
 import scala.concurrent.ExecutionContext.global
+import scala.concurrent.duration._
 object Main extends IOApp.Simple {
 
   implicit def unsafeLogger[F[_]: Sync] = Slf4jLogger.getLogger[F]
 
   val resources: Resource[IO, (Client[IO], ServiceConfig)] =
     for {
-      client <- BlazeClientBuilder[IO](global).resource
+      client <- BlazeClientBuilder[IO](global)
+        .withMaxWaitQueueLimit(2048)
+        .withMaxTotalConnections(64)
+        .withIdleTimeout(600.seconds)
+        .resource
       serviceConfig <- Resource.eval(
         ConfigSource.default.at("service").loadF[IO, ServiceConfig]()
       )
@@ -48,6 +53,8 @@ object Main extends IOApp.Simple {
             "0.0.0.0"
           )
           .withHttpApp(httpApp)
+          .withResponseHeaderTimeout(600.seconds)
+          .withIdleTimeout(600.seconds)
           .serve
           .compile
           .drain

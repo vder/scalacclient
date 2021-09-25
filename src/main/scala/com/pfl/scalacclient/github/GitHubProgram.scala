@@ -5,30 +5,27 @@ import cats.effect.kernel.Sync
 import cats.implicits._
 import cats.kernel.Monoid
 import com.pfl.scalacclient.model._
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.numeric.Positive
-import eu.timepit.refined.refineMV
-import eu.timepit.refined.types.numeric
+import model._
 
 final case class GitHubProgram[F[_]: Parallel: Sync](
     val gitHubRepo: GitHubRepository[F],
-    pageSize: numeric.PosInt = refineMV[Positive](100)
+    pageSize: PageSize = PageSize.default
 ) {
 
   def listRepos(organisation: Organisation): F[List[Repo]] = {
     def repoAux(
         organisation: Organisation,
-        pageNo: Int Refined Positive = refineMV(1)
+        pageNo: PageNo = PageNo.default
     ): F[List[Repo]] =
       for {
         resultPage <- gitHubRepo.getRepositories(organisation, pageSize, pageNo)
         nextPage <-
-          if (resultPage.size < pageSize.value) List().pure[F]
+          if (resultPage.size < pageSize.value.value) List().pure[F]
           else
             Sync[F].defer(
               repoAux(
                 organisation,
-                Refined.unsafeApply[Int, Positive](pageNo.value + 1)
+                pageNo.next
               )
             )
       } yield (resultPage ::: nextPage)
@@ -43,7 +40,7 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
     def contributorsAux(
         organisation: Organisation,
         repo: Repo,
-        pageNo: Int Refined Positive = refineMV(1)
+        pageNo: PageNo = PageNo.default
     ): F[List[User]] =
       for {
         resultPage <- gitHubRepo.getContributors(
@@ -53,13 +50,13 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
           pageNo
         )
         nextPage <-
-          if (resultPage.size < pageSize.value) List().pure[F]
+          if (resultPage.size < pageSize.value.value) List().pure[F]
           else
             Sync[F].defer(
               contributorsAux(
                 organisation,
                 repo,
-                Refined.unsafeApply[Int, Positive](pageNo.value + 1)
+                pageNo.next
               )
             )
       } yield (resultPage ::: nextPage)
@@ -82,7 +79,7 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
         .reduce(_ ::: _)
         .groupMapReduce(_.login)(_.contributions.value.value)(_ + _)
         .map { case (login, sum) =>
-          User(login, Contributions(Refined.unsafeApply[Int, Positive](sum)))
+          User(login, Contributions.unsafeApply(sum))
         }
         .toList
         .sorted

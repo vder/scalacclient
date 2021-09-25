@@ -23,4 +23,10 @@ object model {
       }
     }
   }
+
+  object Contributions {
+    def unsafeApply(i: Int) = Contributions(
+      Refined.unsafeApply[Int, Positive](i)
+    )
+  }
 }
