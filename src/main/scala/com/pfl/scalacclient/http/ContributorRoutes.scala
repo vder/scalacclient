@@ -1,7 +1,6 @@
 package com.pfl.scalacclient.http
 
-import cats.MonadError
-import cats.effect.Sync
+import cats.effect.{Sync, Temporal}
 import cats.implicits._
 import com.pfl.scalacclient.error.ErrorHandler
 import com.pfl.scalacclient.error.instances._
@@ -14,8 +13,12 @@ import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
+import org.http4s.server.middleware.Caching
+import scala.concurrent.duration.Duration
 
-final class ContributorRoutes[F[_]: MonadError[*[_], Throwable]: Logger](
+final class ContributorRoutes[
+    F[_]: Logger: Temporal
+](
     contributorService: ContributorService[F]
 ) extends CirceEncoders {
 
@@ -27,6 +30,7 @@ final class ContributorRoutes[F[_]: MonadError[*[_], Throwable]: Logger](
   val dsl = new Http4sDsl[F] {}
   import dsl._
 
+  // val middle=
   val httpRoutes: HttpRoutes[F] =
     HttpRoutes.of { case GET -> Root / organisation / "contributors" =>
       for {
@@ -41,13 +45,16 @@ final class ContributorRoutes[F[_]: MonadError[*[_], Throwable]: Logger](
     }
 
   def routes(handler: ErrorHandler[F, Throwable]) =
-    Router(
-      prefixPath -> handler.basicHandle(httpRoutes)
+    Caching.publicCache(
+      Duration.Inf,
+      Router(
+        prefixPath -> handler.basicHandle(httpRoutes)
+      )
     )
 }
 
 object ContributorRoutes {
-  def make[F[_]: Sync: Logger](
+  def make[F[_]: Sync: Logger: Temporal](
       contributorService: ContributorService[F]
   ) = Sync[F].delay { new ContributorRoutes(contributorService) }
 }
