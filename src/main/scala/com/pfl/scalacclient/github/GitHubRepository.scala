@@ -19,6 +19,8 @@ import org.http4s.client.Client
 import org.http4s.headers.Authorization
 import org.typelevel.log4cats.Logger
 import model._
+import cats.effect.std.Semaphore
+import cats.effect.kernel.MonadCancel
 
 trait GitHubRepository[F[_]] {
   def getRepositories(
@@ -38,6 +40,7 @@ final class LiveGitHubRepository[
     F[_]: Concurrent: Logger
 ] private (
     val client: Client[F],
+    semaphore: Semaphore[F],
     serviceConfig: ServiceConfig
 ) extends GitHubRepository[F]
     with CirceDecoders {
@@ -63,6 +66,7 @@ final class LiveGitHubRepository[
     r match {
       case r @ Response(Status(200), _, _, _, _) => r.as[List[T]]
       case Response(Status(204), _, _, _, _)     => List[T]().empty.pure[F]
+      case Response(Status(403), _, _, _, _)     => List[T]().empty.pure[F]
       case Response(Status(404), _, _, _, _) =>
         Concurrent[F]
           .raiseError[List[T]](
@@ -80,10 +84,41 @@ final class LiveGitHubRepository[
       pageSize: PageSize,
       pageNo: PageNo
   ): F[List[Repo]] =
+    MonadCancel[F, Throwable].guarantee(
+      for {
+        url <- Uri
+          .fromString(
+            s"""${GITHUB_URL}/orgs/${organisation.value.value}/repos?per_page=${pageSize.value.value}&page=${pageNo.value.value}"""
+          )
+          .liftTo[F]
+        request = Request[F](
+          GET,
+          url,
+          headers = reqHeaders
+        )
+        _ <- semaphore.acquire
+        resp <- client
+          .run(request)
+          .use { r =>
+            responseHandler[Repo](organisation)(r).recoverWith { e =>
+              Logger[F].warn(request.toString()) >> Logger[F]
+                .warn(r.toString()) >> Concurrent[F].raiseError(e)
+            }
+          }
+      } yield (resp),
+      semaphore.release
+    )
+
+  override def getContributors(
+      organisation: Organisation,
+      repo: Repo,
+      pageSize: PageSize,
+      pageNo: PageNo
+  ): F[List[User]] = MonadCancel[F, Throwable].guarantee(
     for {
       url <- Uri
         .fromString(
-          s"""${GITHUB_URL}/orgs/${organisation.value.value}/repos?per_page=${pageSize.value.value}&page=${pageNo.value.value}"""
+          s"""${GITHUB_URL}/repos/${organisation.value.value}/${repo.value.value}/contributors?per_page=${pageSize.value.value}&page=${pageNo.value.value}"""
         )
         .liftTo[F]
       request = Request[F](
@@ -91,37 +126,16 @@ final class LiveGitHubRepository[
         url,
         headers = reqHeaders
       )
-      resp <- client
-        .run(request)
-        .use { r =>
-          responseHandler[Repo](organisation)(r).recoverWith { e =>
-            Logger[F].warn(r.toString()) >> Concurrent[F].raiseError(e)
-          }
+      _ <- semaphore.acquire
+      resp <- client.run(request).use { r =>
+        responseHandler[User](organisation)(r).recoverWith { e =>
+          Logger[F].warn(request.toString()) >> Logger[F]
+            .warn(r.toString()) >> Concurrent[F].raiseError(e)
         }
-    } yield (resp)
-
-  override def getContributors(
-      organisation: Organisation,
-      repo: Repo,
-      pageSize: PageSize,
-      pageNo: PageNo
-  ): F[List[User]] = for {
-    url <- Uri
-      .fromString(
-        s"""${GITHUB_URL}/repos/${organisation.value.value}/${repo.value.value}/contributors?per_page=${pageSize.value.value}&page=${pageNo.value.value}"""
-      )
-      .liftTo[F]
-    request = Request[F](
-      GET,
-      url,
-      headers = reqHeaders
-    )
-    resp <- client.run(request).use { r =>
-      responseHandler[User](organisation)(r).recoverWith { e =>
-        Logger[F].warn(r.toString()) >> Concurrent[F].raiseError(e)
       }
-    }
-  } yield (resp)
+    } yield (resp),
+    semaphore.release
+  )
 
 }
 
@@ -129,7 +143,10 @@ object LiveGitHubRepository {
 
   def make[F[_]: Sync: Concurrent: Logger](
       client: Client[F],
+      semaphore: Semaphore[F],
       serviceConfig: ServiceConfig
   ) =
-    Sync[F].delay { new LiveGitHubRepository[F](client, serviceConfig) }
+    Sync[F].delay {
+      new LiveGitHubRepository[F](client, semaphore, serviceConfig)
+    }
 }

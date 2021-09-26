@@ -7,7 +7,7 @@ object Dependencies {
     val pureConfig = "0.16.0"
     val refined = "0.9.23"
     val circe = "0.14.0"
-    val http4s = "0.23.0"
+    val http4s = "0.23.4" //"0.23.0"
     val Logback = "1.2.3"
     val circeDerivation = "0.13.0-M4"
     val betterMonadicFor = "0.3.1"

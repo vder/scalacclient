@@ -19,6 +19,7 @@ import pureconfig.ConfigSource
 import pureconfig.module.catseffect.syntax._
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.duration._
+import cats.effect.std.Semaphore
 object Main extends IOApp.Simple {
 
   implicit def unsafeLogger[F[_]: Sync] = Slf4jLogger.getLogger[F]
@@ -28,18 +29,21 @@ object Main extends IOApp.Simple {
       client <- BlazeClientBuilder[IO](global)
         .withMaxWaitQueueLimit(2048)
         .withMaxTotalConnections(64)
-        .withIdleTimeout(600.seconds)
+        .withIdleTimeout(Duration.Inf)
+        .withResponseHeaderTimeout(Duration.Inf)
         .resource
       serviceConfig <- Resource.eval(
         ConfigSource.default.at("service").loadF[IO, ServiceConfig]()
       )
+
     } yield (client, serviceConfig)
 
   override def run =
     resources.use { case (client, config) =>
       for {
         routes <- BasicRoutes.make[IO]
-        githubRepo <- LiveGitHubRepository.make(client, config)
+        semaphore <- Semaphore[IO](64)
+        githubRepo <- LiveGitHubRepository.make(client, semaphore, config)
         githubApi = GitHubProgram(githubRepo)
         service <- ContributorService.make(githubApi)
         contributorRoutes <- ContributorRoutes.make(service)
@@ -54,7 +58,7 @@ object Main extends IOApp.Simple {
           )
           .withHttpApp(httpApp)
           .withResponseHeaderTimeout(600.seconds)
-          .withIdleTimeout(600.seconds)
+          .withIdleTimeout(601.seconds)
           .serve
           .compile
           .drain
