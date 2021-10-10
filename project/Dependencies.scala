@@ -2,9 +2,9 @@ import sbt._
 
 object Dependencies {
   object V {
-    val catsEff = "3.1.1"
+    val catsEff = "3.2.9"
     val cats = "2.6.0"
-    val refined = "0.9.23"
+    val refined = "0.9.27"
     val circe = "0.14.0"
     val http4s = "0.23.4"
     val Logback = "1.2.3"
@@ -21,7 +21,8 @@ object Dependencies {
       "org.http4s" %% artifact % V.http4s
     def refinedLib(artifact: String): ModuleID =
       "eu.timepit" %% artifact % V.refined
-    def circeLib(artifact: String): ModuleID = "io.circe" %% artifact % V.circe
+    def circeLib(artifact: String, version: String = V.circe): ModuleID =
+      "io.circe" %% artifact % version
     def mUnitLib(artifact: String): ModuleID =
       "org.scalameta" %% artifact % V.munit % Test
     def typeLevelLibTest(artifact: String, v: String): ModuleID =
@@ -44,7 +45,7 @@ object Dependencies {
     val refined = refinedLib("refined")
     val refinedCats = refinedLib("refined-cats")
     val slf4j = "org.typelevel" %% "log4cats-slf4j" % "2.1.1"
-    val mUnitCE = typeLevelLibTest("munit-cats-effect-3", "1.0.0")
+    val mUnitCE = typeLevelLibTest("munit-cats-effect-3", "1.0.6")
     val scalaCheckEffect =
       typeLevelLibTest("scalacheck-effect", V.scalacheckEffect)
     val scalaCheckEffectMunit =

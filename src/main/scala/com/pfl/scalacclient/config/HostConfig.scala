@@ -8,7 +8,7 @@ import ciris.refined._
 import cats.implicits._
 import cats.effect.kernel.Async
 import eu.timepit.refined.auto._
-import eu.timepit.refined.cats._
+import cats.Show
 
 final case class ServiceConfig(
     port: UserPortNumber,
@@ -17,6 +17,8 @@ final case class ServiceConfig(
 )
 
 object ServiceConfig {
+
+  implicit val s: Show[NonEmptyString] = Show[String].contramap(_.value)
 
   def config[F[_]: Async]: F[ServiceConfig] =
     (

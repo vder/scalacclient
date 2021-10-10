@@ -1,7 +1,7 @@
 package com.pfl.scalacclient.error
 
 import cats.data.{Kleisli, OptionT}
-import cats.{MonadError, ApplicativeError}
+import cats.{MonadThrow, ApplicativeError}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{HttpRoutes, Response}
 
@@ -16,7 +16,7 @@ trait ErrorHandler[F[_], E <: Throwable] {
 
 object LiveHttpErrorHandler {
 
-  def apply[F[_]: MonadError[*[_], Throwable]]: ErrorHandler[F, Throwable] =
+  def apply[F[_]: MonadThrow]: ErrorHandler[F, Throwable] =
     new ErrorHandler[F, Throwable] {
       val dsl = new Http4sDsl[F] {}
       import dsl._

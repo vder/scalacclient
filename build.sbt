@@ -14,8 +14,8 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       catsEffect,
       circe,
-      circeDerivation,
-      circeExtras,
+      //    circeDerivation,
+      //    circeExtras,
       circeFs2,
       circeParser,
       circeRefined,
@@ -30,13 +30,18 @@ lazy val root = (project in file("."))
       mUnitCE,
       mUnitScalacheck,
       refined,
-      refinedCats,
+      // refinedCats,
       scalaCheckEffect,
       scalaCheckEffectMunit,
       slf4j
     ),
-    addCompilerPlugin(kindProjector),
-    addCompilerPlugin(betterMonadicFor),
+    // https://mvnrepository.com/artifact/org.scalameta/semanticdb-scalac
+//libraryDependencies += "org.scalameta" %% "semanticdb-scalac" % "4.4.28"
+    // addCompilerPlugin(kindProjector),
+    // addCompilerPlugin(betterMonadicFor),
+    addCompilerPlugin(
+      "org.scalameta" % "semanticdb-scalac" % "4.4.28" cross CrossVersion.full
+    ),
     scalacOptions ++= Seq(
       "-deprecation",
       "-encoding",
@@ -45,6 +50,7 @@ lazy val root = (project in file("."))
       "-language:postfixOps",
       "-feature",
       //  "-Xfatal-warnings",
-      "-Xlint:unused"
+      // "-Ykind-projector",
+      "-Yrangepos"
     )
   )
