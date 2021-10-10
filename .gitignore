@@ -2,5 +2,6 @@
 .metals/*
 .bsp/
 .vscode/
+.history/
 target/
 *worksheet.sc

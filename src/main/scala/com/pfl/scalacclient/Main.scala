@@ -15,34 +15,29 @@ import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.client.Client
 import org.http4s.implicits._
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import pureconfig.ConfigSource
-import pureconfig.module.catseffect.syntax._
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.duration._
 import cats.effect.std.Semaphore
+import org.typelevel.log4cats.Logger
 object Main extends IOApp.Simple {
 
   implicit def unsafeLogger[F[_]: Sync] = Slf4jLogger.getLogger[F]
 
-  val resources: Resource[IO, (Client[IO], ServiceConfig)] =
-    for {
-      client <- BlazeClientBuilder[IO](global)
-        .withMaxWaitQueueLimit(2048)
-        .withMaxTotalConnections(64)
-        .withIdleTimeout(Duration.Inf)
-        .withResponseHeaderTimeout(Duration.Inf)
-        .resource
-      serviceConfig <- Resource.eval(
-        ConfigSource.default.at("service").loadF[IO, ServiceConfig]()
-      )
-
-    } yield (client, serviceConfig)
+  val resources: Resource[IO, Client[IO]] =
+    BlazeClientBuilder[IO](global)
+      .withMaxWaitQueueLimit(2048)
+      .withMaxTotalConnections(64)
+      .withIdleTimeout(Duration.Inf)
+      .withResponseHeaderTimeout(Duration.Inf)
+      .resource
 
   override def run =
-    resources.use { case (client, config) =>
+    resources.use { case (client) =>
       for {
         routes <- BasicRoutes.make[IO]
         semaphore <- Semaphore[IO](64)
+        config <- ServiceConfig.config[IO]
+        _ <- Logger[IO].info(config.toString())
         githubRepo <- LiveGitHubRepository.make(client, semaphore, config)
         githubApi = GitHubProgram(githubRepo)
         service <- ContributorService.make(githubApi)

@@ -14,6 +14,7 @@ object Dependencies {
     val kindProjector = "0.13.0"
     val munit = "0.7.29"
     val scalacheckEffect = "1.0.2"
+    val ciris = "2.1.1"
   }
   object Libraries {
 
@@ -34,6 +35,8 @@ object Dependencies {
     val circeFs2 = circeLib("circe-fs2")
     val circeParser = circeLib("circe-parser")
     val circeRefined = circeLib("circe-refined")
+    val ciris = "is.cir" %% "ciris" % V.ciris
+    val cirisRefined = "is.cir" %% "ciris-refined" % V.ciris
     val http4sCirce = http4sLib("http4s-circe")
     val http4sClient = http4sLib("http4s-blaze-client")
     val http4sDsl = http4sLib("http4s-dsl")

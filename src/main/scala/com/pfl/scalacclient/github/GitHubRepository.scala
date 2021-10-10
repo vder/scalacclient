@@ -47,7 +47,10 @@ final class LiveGitHubRepository[
 
   val reqHeaders = Headers(
     Authorization(
-      BasicCredentials(serviceConfig.user.value, serviceConfig.token.value)
+      BasicCredentials(
+        serviceConfig.user.value,
+        serviceConfig.token.value.value
+      )
     )
   ) ++ Headers(
     ("Accept", "application/vnd.github.v3+json")

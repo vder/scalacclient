@@ -19,6 +19,8 @@ lazy val root = (project in file("."))
       circeFs2,
       circeParser,
       circeRefined,
+      ciris,
+      cirisRefined,
       http4sCirce,
       http4sDsl,
       http4sClient,
