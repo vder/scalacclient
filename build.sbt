@@ -29,10 +29,8 @@ lazy val root = (project in file("."))
       mUnit,
       mUnitCE,
       mUnitScalacheck,
-      pureConfig,
-      pureConfigCE,
-      pureConfigRefined,
       refined,
+      refinedCats,
       scalaCheckEffect,
       scalaCheckEffectMunit,
       slf4j
