@@ -9,15 +9,15 @@ import io.circe.refined._
 
 trait CirceDecoders {
 
-  implicit val LoginDecoder: Decoder[Login] =
+  given Decoder[Login] =
     Decoder[NonEmptyString].map(Login.apply)
 
-  implicit val ContributionsDecoder: Decoder[Contributions] =
+  given Decoder[Contributions] =
     Decoder[PosInt].map(Contributions.apply)
 
-  implicit val RepoDecoder: Decoder[Repo] =
+  given Decoder[Repo] =
     Decoder
       .forProduct1("name")(Repo.apply)
 
-  implicit val UserDecoder: Decoder[User] = deriveDecoder[User]
+  given Decoder[User] = deriveDecoder[User]
 }

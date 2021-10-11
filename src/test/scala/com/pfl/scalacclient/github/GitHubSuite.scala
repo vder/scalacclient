@@ -11,7 +11,7 @@ import munit.CatsEffectSuite
 import eu.timepit.refined.collection.NonEmpty
 import cats.effect.IO
 import model._
-import eu.timepit.refined.types.numeric.PosInt
+// import eu.timepit.refined.types.numeric.PosInt
 
 class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
 

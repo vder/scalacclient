@@ -22,8 +22,8 @@ final class ContributorRoutes[
     contributorService: ContributorService[F]
 ) extends CirceEncoders {
 
-  implicit def encodeUser: EntityEncoder[F, User] = jsonEncoderOf
-  implicit def encodeUserList: EntityEncoder[F, List[User]] = jsonEncoderOf
+  given EntityEncoder[F, User] = jsonEncoderOf
+  given EntityEncoder[F, List[User]] = jsonEncoderOf
 
   private[this] val prefixPath = "/org/"
 

@@ -20,7 +20,7 @@ import com.pfl.scalacclient.github.GitHubProgram
 import cats.effect.kernel.Sync
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import com.pfl.scalacclient.error.ErrorMessage
-import com.pfl.scalacclient.arbitraries._
+import com.pfl.scalacclient.arbitraries.given
 import com.pfl.scalacclient.generators._
 import com.pfl.scalacclient.github.TestGitHubRepository
 import com.pfl.scalacclient.github.model._
@@ -31,8 +31,8 @@ class ContributorRoutesSuite
     with CirceDecoders
     with CirceEncoders {
 
-  implicit def encodeUser: EntityEncoder[IO, User] = jsonEncoderOf
-  implicit def unsafeLogger[F[_]: Sync]: Logger[F] = Slf4jLogger.getLogger[F]
+  given EntityEncoder[IO, User] = jsonEncoderOf
+  given unsafeLogger[F[_]: Sync]: Logger[F] = Slf4jLogger.getLogger[F]
 
   val errHandler = LiveHttpErrorHandler[IO]
 

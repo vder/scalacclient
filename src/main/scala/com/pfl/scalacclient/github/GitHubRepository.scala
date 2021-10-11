@@ -21,6 +21,7 @@ import org.typelevel.log4cats.Logger
 import model._
 import cats.effect.std.Semaphore
 import cats.effect.kernel.MonadCancel
+import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
 
 trait GitHubRepository[F[_]] {
   def getRepositories(
@@ -58,10 +59,10 @@ final class LiveGitHubRepository[
 
   private val GITHUB_URL: String = "https://api.github.com"
 
-  implicit def RepoEntityDecoder: EntityDecoder[F, Repo] = jsonOf
-  implicit def RepoListEntityDecoder: EntityDecoder[F, List[Repo]] = jsonOf
-  implicit def UserEntityDecoder: EntityDecoder[F, User] = jsonOf
-  implicit def UserListEntityDecoder: EntityDecoder[F, List[User]] = jsonOf
+  given EntityDecoder[F, Repo] = jsonOf
+ // given EntityDecoder[F, List[Repo]] = jsonOf
+  given EntityDecoder[F, User] = jsonOf
+  //given EntityDecoder[F, List[User]] = jsonOf
 
   private def responseHandler[T](
       o: Organisation

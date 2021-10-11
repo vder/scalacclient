@@ -21,7 +21,7 @@ import cats.effect.std.Semaphore
 import org.typelevel.log4cats.Logger
 object Main extends IOApp.Simple {
 
-  implicit def unsafeLogger[F[_]: Sync]: Logger[F] = Slf4jLogger.getLogger[F]
+  given unsafeLogger[F[_]: Sync]: Logger[F] = Slf4jLogger.getLogger[F]
 
   val resources: Resource[IO, Client[IO]] =
     BlazeClientBuilder[IO](global)

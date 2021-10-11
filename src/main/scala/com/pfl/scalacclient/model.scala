@@ -12,8 +12,8 @@ object model {
   final case class User(login: Login, contributions: Contributions)
 
   object User {
-    implicit val descendingOrder: Ordering[User] = new Ordering[User] {
-      override def compare(x: User, y: User): Int = {
+    given Ordering[User] with {
+      def compare(x: User, y: User) = {
         val contributionCompare =
           (-x.contributions.value.value).compareTo(-y.contributions.value.value)
         if (contributionCompare == 0)

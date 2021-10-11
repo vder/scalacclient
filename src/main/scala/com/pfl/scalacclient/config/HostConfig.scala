@@ -18,7 +18,7 @@ final case class ServiceConfig(
 
 object ServiceConfig {
 
-  implicit val s: Show[NonEmptyString] = Show[String].contramap(_.value)
+  given Show[NonEmptyString] = Show[String].contramap(_.value)
 
   def config[F[_]: Async]: F[ServiceConfig] =
     (

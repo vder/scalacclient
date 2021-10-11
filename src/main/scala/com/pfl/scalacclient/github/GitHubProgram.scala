@@ -64,7 +64,7 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
     contributorsAux(organisation, repo)
   }
 
-  implicit val userListMonoid: Monoid[List[User]] = new Monoid[List[User]] {
+  given Monoid[List[User]] with {
     def combine(x: List[User], y: List[User]): List[User] = x ::: y
 
     def empty: List[User] = List()

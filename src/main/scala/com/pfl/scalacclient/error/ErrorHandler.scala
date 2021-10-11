@@ -20,7 +20,7 @@ object LiveHttpErrorHandler {
     new ErrorHandler[F, Throwable] {
       val dsl = new Http4sDsl[F] {}
       import dsl._
-      val A: ApplicativeError[F, Throwable] = implicitly
+      val A: ApplicativeError[F, Throwable] = summon
 
       val handler: PartialFunction[Throwable, F[Response[F]]] = {
         case instances.BadRequestErr =>
