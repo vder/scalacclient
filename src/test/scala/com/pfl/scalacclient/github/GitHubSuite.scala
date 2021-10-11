@@ -2,7 +2,7 @@ package com.pfl.scalacclient.github
 
 import com.pfl.scalacclient.model._
 import eu.timepit.refined.numeric.Positive
-import eu.timepit.refined.refineMV
+import eu.timepit.refined.api.Refined
 import munit.ScalaCheckEffectSuite
 import org.scalacheck.effect.PropF
 import scala.util.Random
@@ -11,6 +11,7 @@ import munit.CatsEffectSuite
 import eu.timepit.refined.collection.NonEmpty
 import cats.effect.IO
 import model._
+import eu.timepit.refined.types.numeric.PosInt
 
 class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
 
@@ -41,9 +42,10 @@ class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
             }
 
           },
-          PageSize(refineMV[Positive](1))
+          PageSize(Refined.unsafeApply[Int, Positive](1))
         )
-      val organisation = Organisation(refineMV[NonEmpty]("a"))
+      val organisation =
+        Organisation(Refined.unsafeApply[String, NonEmpty]("a"))
       program.listRepos(organisation).map { result =>
         assertEquals(
           result,
@@ -59,7 +61,7 @@ class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
       val program =
         new GitHubProgram(
           testRepository,
-          PageSize(refineMV[Positive](1))
+          PageSize(Refined.unsafeApply[Int, Positive](1))
         )
 
       val expectedResults: List[User] = data.toList
@@ -71,7 +73,8 @@ class GitHubSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
         }
         .sorted
 
-      val organisation = Organisation(refineMV[NonEmpty]("a"))
+      val organisation =
+        Organisation(Refined.unsafeApply[String, NonEmpty]("a"))
       program.listContributors(organisation).map { result =>
         assertEquals(result, expectedResults)
       }

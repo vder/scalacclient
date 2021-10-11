@@ -1,6 +1,6 @@
 import Dependencies.Libraries._
 
-ThisBuild / scalaVersion := "2.13.16"
+ThisBuild / scalaVersion := "3.0.2"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.pfl"
 ThisBuild / organizationName := "pfl"
@@ -10,12 +10,10 @@ ThisBuild / organizationName := "pfl"
 lazy val root = (project in file("."))
   .settings(
     name := "scalacclient",
-    scalaVersion := "2.13.6",
+    scalaVersion := "3.0.2",
     libraryDependencies ++= Seq(
       catsEffect,
       circe,
-      //    circeDerivation,
-      //    circeExtras,
       circeFs2,
       circeParser,
       circeRefined,
@@ -30,27 +28,20 @@ lazy val root = (project in file("."))
       mUnitCE,
       mUnitScalacheck,
       refined,
-      // refinedCats,
       scalaCheckEffect,
       scalaCheckEffectMunit,
       slf4j
     ),
-    // https://mvnrepository.com/artifact/org.scalameta/semanticdb-scalac
-//libraryDependencies += "org.scalameta" %% "semanticdb-scalac" % "4.4.28"
-    // addCompilerPlugin(kindProjector),
-    // addCompilerPlugin(betterMonadicFor),
-    addCompilerPlugin(
-      "org.scalameta" % "semanticdb-scalac" % "4.4.28" cross CrossVersion.full
-    ),
     scalacOptions ++= Seq(
       "-deprecation",
-      "-encoding",
-      "UTF-8",
+      //  "-encoding",
+      "utf-8",
+      "future",
       "-language:higherKinds",
       "-language:postfixOps",
-      "-feature",
+      "-feature"
       //  "-Xfatal-warnings",
       // "-Ykind-projector",
-      "-Yrangepos"
+      //"-Yrangepos"
     )
   )

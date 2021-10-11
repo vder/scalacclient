@@ -53,7 +53,7 @@ final class LiveGitHubRepository[
       )
     )
   ) ++ Headers(
-    ("Accept", "application/vnd.github.v3+json")
+    List(("Accept", "application/vnd.github.v3+json"))
   )
 
   private val GITHUB_URL: String = "https://api.github.com"
@@ -103,7 +103,7 @@ final class LiveGitHubRepository[
         resp <- client
           .run(request)
           .use { r =>
-            responseHandler[Repo](organisation)(r).recoverWith { e =>
+            responseHandler[Repo](organisation)(r).recoverWith { case e =>
               Logger[F].warn(request.toString()) >> Logger[F]
                 .warn(r.toString()) >> Concurrent[F].raiseError(e)
             }
@@ -131,7 +131,7 @@ final class LiveGitHubRepository[
       )
       _ <- semaphore.acquire
       resp <- client.run(request).use { r =>
-        responseHandler[User](organisation)(r).recoverWith { e =>
+        responseHandler[User](organisation)(r).recoverWith { case e =>
           Logger[F].warn(request.toString()) >> Logger[F]
             .warn(r.toString()) >> Concurrent[F].raiseError(e)
         }

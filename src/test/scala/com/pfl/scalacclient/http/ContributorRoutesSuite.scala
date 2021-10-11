@@ -24,6 +24,7 @@ import com.pfl.scalacclient.arbitraries._
 import com.pfl.scalacclient.generators._
 import com.pfl.scalacclient.github.TestGitHubRepository
 import com.pfl.scalacclient.github.model._
+import org.typelevel.log4cats.Logger
 
 class ContributorRoutesSuite
     extends HttpTestSuite
@@ -31,7 +32,7 @@ class ContributorRoutesSuite
     with CirceEncoders {
 
   implicit def encodeUser: EntityEncoder[IO, User] = jsonEncoderOf
-  implicit def unsafeLogger[F[_]: Sync] = Slf4jLogger.getLogger[F]
+  implicit def unsafeLogger[F[_]: Sync]: Logger[F] = Slf4jLogger.getLogger[F]
 
   val errHandler = LiveHttpErrorHandler[IO]
 
