@@ -33,17 +33,13 @@ lazy val root = (project in file("."))
       slf4j
     ),
     scalacOptions ++= Seq(
-      //   "-deprecation",
-      //   //  "-encoding",
-      //   "utf-8",
-      //   "future",
-      //   "-language:higherKinds",
-      "-language:postfixOps"
-      //   "-feature"
-      //   //"-source:3.0-migration",
-      //   // "-rewrite"
-      //   //  "-Xfatal-warnings",
-      //   // "-Ykind-projector",
-      //   //"-Yrangepos"
+      "-deprecation",
+      "UTF-8",
+      "future",
+      "-language:higherKinds",
+      "-language:postfixOps",
+      "-feature",
+      "-Xfatal-warnings",
+      "-Ykind-projector"
     )
   )
