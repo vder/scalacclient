@@ -1,6 +1,6 @@
 import Dependencies.Libraries._
 
-ThisBuild / scalaVersion := "3.1.0-RC3"
+ThisBuild / scalaVersion := "3.0.0"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.pfl"
 ThisBuild / organizationName := "pfl"
@@ -10,7 +10,7 @@ ThisBuild / organizationName := "pfl"
 lazy val root = (project in file("."))
   .settings(
     name := "scalacclient",
-    scalaVersion := "3.1.0-RC3",
+    scalaVersion := "3.0.0",
     libraryDependencies ++= Seq(
       catsEffect,
       circe,
@@ -33,7 +33,11 @@ lazy val root = (project in file("."))
       slf4j
     ),
     scalacOptions ++= Seq(
-    //  "-language:postfixOps",
+      "-deprecation",
+      "UTF-8",
+      "future",
+      "-language:higherKinds",
+      "-language:postfixOps",
       "-feature",
       "-Xfatal-warnings",
       "-Ykind-projector"
