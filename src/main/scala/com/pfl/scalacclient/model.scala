@@ -1,7 +1,7 @@
 package com.pfl.scalacclient
 
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.numeric._
+import eu.timepit.refined.numeric.*
 import eu.timepit.refined.types.string
 
 object model {
@@ -12,7 +12,7 @@ object model {
   final case class User(login: Login, contributions: Contributions)
 
   object User {
-    given Ordering[User] with {
+    given Ordering[User[?] with {
       def compare(x: User, y: User) = {
         val contributionCompare =
           (-x.contributions.value.value).compareTo(-y.contributions.value.value)
@@ -26,7 +26,7 @@ object model {
 
   object Contributions {
     def unsafeApply(i: Int) = Contributions(
-      Refined.unsafeApply[Int, Positive](i)
+      Refined.unsafeApply[Int, Positive[?](i)
     )
   }
 }

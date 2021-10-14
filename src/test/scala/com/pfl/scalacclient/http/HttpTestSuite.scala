@@ -1,16 +1,16 @@
 package suite
 
 import cats.effect.IO
-import io.circe._
-import io.circe.syntax._
+import io.circe.*
+import io.circe.syntax.*
 import munit.CatsEffectSuite
 import munit.ScalaCheckEffectSuite
-import org.http4s._
-import org.http4s.circe._
+import org.http4s.*
+import org.http4s.circe.*
 
 trait HttpTestSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
 
-  def assertHttp[A: Encoder](routes: HttpRoutes[IO], req: Request[IO])(
+  def assertHttp[A: Encoder[?](routes: HttpRoutes[IO[?], req: Request[IO[?])(
       expectedStatus: Status,
       expectedBody: A
   ) =
@@ -25,7 +25,7 @@ trait HttpTestSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
       case None => fail("route not found")
     }
 
-  def assertHttpStatus(routes: HttpRoutes[IO], req: Request[IO])(
+  def assertHttpStatus(routes: HttpRoutes[IO[?], req: Request[IO[?])(
       expectedStatus: Status
   ) =
     routes.run(req).value.map {
@@ -34,7 +34,7 @@ trait HttpTestSuite extends CatsEffectSuite with ScalaCheckEffectSuite {
       case None => fail("route nout found")
     }
 
-  def assertHttpFailure(routes: HttpRoutes[IO], req: Request[IO])(
+  def assertHttpFailure(routes: HttpRoutes[IO[?], req: Request[IO[?])(
       expected: Throwable
   ) =
     routes.run(req).value.attempt.map { x =>

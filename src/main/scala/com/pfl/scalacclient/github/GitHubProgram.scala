@@ -2,27 +2,27 @@ package com.pfl.scalacclient.github
 
 import cats.Parallel
 import cats.effect.kernel.Sync
-import cats.implicits._
+import cats.implicits.*
 import cats.kernel.Monoid
-import com.pfl.scalacclient.model._
-import model._
+import com.pfl.scalacclient.model.*
+import model.*
 
-final case class GitHubProgram[F[_]: Parallel: Sync](
-    val gitHubRepo: GitHubRepository[F],
+final case class GitHubProgram[F[_[?]: Parallel: Sync[?](
+    val gitHubRepo: GitHubRepository[F[?],
     pageSize: PageSize = PageSize.default
 ) {
 
-  def listRepos(organisation: Organisation): F[List[Repo]] = {
+  def listRepos(organisation: Organisation): F[List[Repo[?][?] = {
     def repoAux(
         organisation: Organisation,
         pageNo: PageNo = PageNo.default
-    ): F[List[Repo]] =
+    ): F[List[Repo[?][?] =
       for {
         resultPage <- gitHubRepo.getRepositories(organisation, pageSize, pageNo)
         nextPage <-
-          if (resultPage.size < pageSize.value.value) List().pure[F]
+          if (resultPage.size < pageSize.value.value) List().pure[F[?]
           else
-            Sync[F].defer(
+            Sync[F[?].defer(
               repoAux(
                 organisation,
                 pageNo.next
@@ -36,12 +36,12 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
   def listContributors(
       organisation: Organisation,
       repo: Repo
-  ): F[List[User]] = {
+  ): F[List[User[?][?] = {
     def contributorsAux(
         organisation: Organisation,
         repo: Repo,
         pageNo: PageNo = PageNo.default
-    ): F[List[User]] =
+    ): F[List[User[?][?] =
       for {
         resultPage <- gitHubRepo.getContributors(
           organisation,
@@ -50,9 +50,9 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
           pageNo
         )
         nextPage <-
-          if (resultPage.size < pageSize.value.value) List().pure[F]
+          if (resultPage.size < pageSize.value.value) List().pure[F[?]
           else
-            Sync[F].defer(
+            Sync[F[?].defer(
               contributorsAux(
                 organisation,
                 repo,
@@ -64,13 +64,13 @@ final case class GitHubProgram[F[_]: Parallel: Sync](
     contributorsAux(organisation, repo)
   }
 
-  given Monoid[List[User]] with {
-    def combine(x: List[User], y: List[User]): List[User] = x ::: y
+  given Monoid[List[User[?][?] with {
+    def combine(x: List[User[?], y: List[User[?]): List[User[?] = x ::: y
 
-    def empty: List[User] = List()
+    def empty: List[User[?] = List()
   }
 
-  def listContributors(organisation: Organisation): F[List[User]] =
+  def listContributors(organisation: Organisation): F[List[User[?][?] =
     for {
       allRepos <- listRepos(organisation)
       results <- allRepos
